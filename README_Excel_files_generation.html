@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel File Generator for Student Grading Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow-x: auto;
+        }
+        code {
+            font-family: Consolas, "Courier New", Courier, monospace;
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Excel File Generator for Student Grading Information</h1>
+    <p>This Python script automates the process of generating personalized Excel files for each student with their grading information for homework and assignments. This helps Teaching Assistants (TAs) streamline their work and provide detailed feedback to each student efficiently.</p>
+
+    <h2>Script Description</h2>
+    
+    <p>The script performs the following steps:</p>
+    <ol>
+        <li>Loads the grading template and the data file containing student information and grades.</li>
+        <li>Reads the data from the Excel files using the <code>pandas</code> library.</li>
+        <li>Loops through each row in the data file and creates a new workbook from the template for each student.</li>
+        <li>Updates specific cells in the template with the student's ID, name, email, grades, and comments.</li>
+        <li>Saves the new workbook with the student's name in the specified output directory.</li>
+    </ol>
+
+    <h2>Key Components</h2>
+    
+    <h3>Paths and Directories:</h3>
+    <ul>
+        <li><code>template_path</code>: The path to the template Excel file.</li>
+        <li><code>data_path</code>: The path to the file containing grading information and student details.</li>
+        <li><code>output_dir</code>: The directory where the generated Excel files will be saved.</li>
+    </ul>
+
+    <h3>Reading Data:</h3>
+    <p>The script uses the <code>pandas</code> library to read the data from the grading information file.</p>
+
+    <h3>Generating Excel Files:</h3>
+    <p>The script uses the <code>openpyxl</code> library to load the template workbook, update specific cells with student information, and save the new workbook for each student.</p>
+
+    <h2>Sample Script</h2>
+    <pre><code class="language-python">import pandas as pd
+import openpyxl
+import os
+
+# Load the template and the data file
+template_path = 'Path_to_template_file'
+data_path = 'Path_to_file_that_contains_gading_information_and_Student_info'
+
+# Read the data from the Excel files
+data = pd.read_excel(data_path)
+
+# Load the template workbook
+template_wb = openpyxl.load_workbook(template_path)
+
+# Directory to save the new Excel files
+output_dir = 'Folder_to_save_the_generated_excel_files'
+os.makedirs(output_dir, exist_ok=True)
+
+# Loop through each row in the data file
+for index, row in data.iterrows():
+    # Create a new workbook from the template
+    new_wb = openpyxl.load_workbook(template_path)
+    sheet = new_wb.active
+    
+    # Update the specific cells with the information from the data file
+    sheet['C2'] = f"ID: {row['ID']}"
+    sheet['E1'] = f"Name: {row['Name']}"
+    sheet['E2'] = f"Email: {row['Email']}"
+    # Update marks
+    sheet['D13'] = row['A']
+    sheet['D14'] = row['B']
+    sheet['D15'] = row['C']
+    sheet['D16'] = row['D']
+    sheet['D17'] = row['E']
+
+    # Update comments
+    sheet['E13'] = row['AA']
+    sheet['E14'] = row['BB']
+    sheet['E15'] = row['CC']
+    sheet['E16'] = row['DD']
+    sheet['E17'] = row['EE']
+    
+    # Save the new workbook with the name provided in the data file
+    output_file = os.path.join(output_dir, f"{row['Name'].replace(' ', '_')}.xlsx")
+    new_wb.save(output_file)
+
+print("Files generated successfully.")
+</code></pre>
+</body>
+</html>
