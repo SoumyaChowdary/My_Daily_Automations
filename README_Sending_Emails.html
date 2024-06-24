@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Grading Email Sender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow-x: auto;
+        }
+        code {
+            font-family: Consolas, "Courier New", Courier, monospace;
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Automated Grading Email Sender</h1>
+    <p>This Python script automates the process of sending grading sheets to students after grading their homework assignments. The script reads Excel files from a specified directory, extracts the recipient email addresses from each file, and sends an email with the grading sheet attached. This helps streamline the grading process, making it faster and more efficient.</p>
+
+    <h2>Key Components</h2>
+    
+    <h3>Email Details:</h3>
+    <ul>
+        <li><code>email_subject</code>: The subject line of the email.</li>
+        <li><code>email_body</code>: The body of the email, including a personalized message.</li>
+        <li><code>sender_email</code>: The email address of the sender.</li>
+        <li><code>sender_password</code>: The password of the sender's email account.</li>
+    </ul>
+
+    <h3>Directory Setup:</h3>
+    <ul>
+        <li><code>directory</code>: The path to the folder containing the Excel files with grading sheets.</li>
+    </ul>
+
+    <h3>SMTP Server Details:</h3>
+    <ul>
+        <li><code>smtp_server</code>: The SMTP server address (e.g., for Gmail it's "smtp.gmail.com").</li>
+        <li><code>smtp_port</code>: The port number for the SMTP server (e.g., 587 for Gmail).</li>
+    </ul>
+
+    <h3>Function <code>send_email</code>:</h3>
+    <p>This function takes two parameters: the recipient's email address and the file path of the Excel file to be sent. It creates an email message, attaches the grading sheet, and sends the email via an SMTP server.</p>
+
+    <h3>Main Loop:</h3>
+    <p>The script loops through all Excel files in the specified directory. For each file, it reads the Excel file to extract the recipient's email address (assumed to be in a specific cell, here it is cell E1). It then calls the <code>send_email</code> function to send the email with the attached grading sheet.</p>
+
+    <h2>Sample Script</h2>
+    <pre><code class="language-python">import os
+import pandas as pd
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
+
+# Email details
+email_subject = "HW Grading Sheet"
+email_body = """
+Hello,
+
+Please find the attached grading sheet for HW.
+Please let me know if you have any questions, via email or you can join any of the TAs office hours.
+
+Thank You,
+
+Regards,
+Soumya
+"""
+sender_email = "Your_email_address_here"
+sender_password = "Your_email_password_here"
+
+# Directory containing the Excel files
+directory = 'Path_to_folder_here'
+
+# SMTP server details (example for Gmail)
+smtp_server = "smtp.gmail.com"
+smtp_port = 587
+
+def send_email(recipient_email, file_path):
+    # Create the email
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+    msg['Subject'] = email_subject
+
+    # Attach the body with the msg instance
+    msg.attach(MIMEText(email_body, 'plain'))
+
+    # Open the file to be sent
+    attachment = open(file_path, "rb")
+
+    # Instance of MIMEBase and named as p
+    part = MIMEBase('application', 'octet-stream')
+
+    # To change the payload into encoded form
+    part.set_payload((attachment).read())
+
+    # Encode into base64
+    encoders.encode_base64(part)
+
+    part.add_header('Content-Disposition', f"attachment; filename= {os.path.basename(file_path)}")
+
+    # Attach the instance 'part' to instance 'msg'
+    msg.attach(part)
+
+    # Create SMTP session for sending the mail
+    server = smtplib.SMTP(smtp_server, smtp_port)
+    server.starttls()
+    server.login(sender_email, sender_password)
+    text = msg.as_string()
+    server.sendmail(sender_email, recipient_email, text)
+    server.quit()
+
+# Loop through all Excel files in the directory
+for file_name in os.listdir(directory):
+    if file_name.endswith('.xlsx'):
+        file_path = os.path.join(directory, file_name)
+
+        # Read the Excel file to get the recipient email
+        df = pd.read_excel(file_path)
+        email_cell_value = df.iloc[0, 4]
+        recipient_email = email_cell_value.split(':')[1].strip()
+
+        # Send the email with the attachment
+        send_email(recipient_email, file_path)
+
+print("Emails sent successfully!")
+</code></pre>
+</body>
+</html>
